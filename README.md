@@ -1,0 +1,3 @@
+# Ramaze::Asset
+
+
