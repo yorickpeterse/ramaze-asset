@@ -11,6 +11,30 @@ module Ramaze
     # @since  0.1
     #
     class Environment
+      # Hash containing all the file group types and their classes.
+      Types = {}
+
+      ##
+      # Registers a new type of file to serve.
+      #
+      # @author Yorick Peterse
+      # @since  0.1
+      # @param  [#to_sym] name The name of the type such as :js or :css.
+      # @param  [Class] klass The klass to initialize for a file group.
+      #
+      def self.register_type(name, klass)
+        name = name.to_sym
+
+        if Types.key?(name)
+          raise(
+            Ramaze::Asset::AssetError,
+            "The type \"#{name}\" already exists"
+          )
+        end
+
+        Types[name] = klass
+      end
+
       ##
       # Creates a new instance of the environment and prepares it.
       #
@@ -39,16 +63,8 @@ module Ramaze
           )
         end
 
-        @files = {
-          :css        => {:global => {:__all => []}},
-          :javascript => {:global => {:__all => []}}
-        }
-
-        @added_files = {
-          :css        => [],
-          :javascript => []
-        }
-
+        @files              = {}
+        @added_files        = {}
         @file_group_options = {
           :paths      => [],
           :cache_path => @options[:cache_path]
@@ -88,9 +104,9 @@ module Ramaze
       # @author Yorick Peterse
       # @since  0.1
       # @see    Ramaze::Asset::FileGroup
-      # @see    Ramaze::Asset::Javascript
-      # @param  [Array] files An array of Javascript files to serve from one of
-      #  the public directories.
+      # @param  [#to_sym] type The type of files to serve.
+      # @param  [Array] files An array of files to serve from one of the public
+      #  directories.
       # @param  [Hash] options A hash containing various options to customize
       #  the file group.
       # @option options :controller The controller to serve the files for, set
@@ -101,32 +117,23 @@ module Ramaze
       #  will only be served when those methods are executed. This option is
       #  completely ignored if :controller is set to :global.
       #
-      def javascript(files, options = {})
+      def serve(type, files, options = {})
+        type = type.to_sym
+
+        if !Types.key?(type)
+          raise(
+            Zen::Asset::AssetError,
+            "The type \"#{type}\" doesn't exist"
+          )
+        end
+
+        @files[type]       ||= {:global => {:__all => []}}
+        @added_files[type] ||= []
+
         options, controller, methods = prepare_options(options)
+        file_group                   = Types[type].new(files, options)
 
-        file_group = Ramaze::Asset::Javascript.new(files, options)
-
-        store_group(:javascript, file_group, controller, methods)
-      end
-
-      ##
-      # Adds a set of CSS files to the environment.
-      #
-      # @author Yorick Peterse
-      # @since  0.1
-      # @param  [Array] files An array of CSS files to add.
-      # @param  [Hash] options A hash containing various options to customize
-      #  the file group.
-      # @see    Ramaze::Asset::FileGroup
-      # @see    Ramaze::Asset::CSS
-      # @see    Ramaze::Asset::Environment#javascript()
-      #
-      def css(files, options = {})
-        options, controller, methods = prepare_options(options)
-
-        file_group = Ramaze::Asset::CSS.new(files, options)
-
-        store_group(:css, file_group, controller, methods)
+        store_group(type, file_group, controller, methods)
       end
 
       ##
@@ -140,7 +147,7 @@ module Ramaze
       def build(type)
         type = type.to_sym
 
-        if !@files.key?(type)
+        if @files.nil? or !@files.key?(type)
           raise(Ramaze::Asset::AssetError, "The type \"#{type}\" doesn't exist")
         end
 
@@ -165,8 +172,11 @@ module Ramaze
         html = ''
         type = type.to_sym
 
-        if !@files.key?(type)
-          raise(Ramaze::Asset::AssetError, "The type \"#{type}\" doesn't exist")
+        if @files.nil? or !@files.key?(type)
+          raise(
+            Ramaze::Asset::AssetError,
+            "The type \"#{type}\" doesn't exist"
+          )
         end
 
         controller, method = current_action

@@ -9,3 +9,6 @@ Thumbs.db
 # Keep those funky gitkeep files
 !.gitkeep
 coverage
+
+spec/fixtures/public/minified/
+!spec/fixtures/public/minified/.gitkeep

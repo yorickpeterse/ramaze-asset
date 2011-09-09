@@ -59,18 +59,24 @@ module Ramaze
         }.merge(options)
 
         if @options[:paths].empty?
-          raise(Ramaze::Asset::Error, 'No public directories were specified')
+          raise(
+            Ramaze::Asset::AssetError,
+            'No public directories were specified'
+          )
         end
 
         if !File.directory?(@options[:cache_path])
           raise(
-            Ramaze::Asset::Error,
+            Ramaze::Asset::AssetError,
             "The directory #{@options[:cache_path]} does not exist"
           )
         end
 
         if extension.nil?
-          raise(Ramaze::Asset::Error, 'You need to specify an extension')
+          raise(
+            Ramaze::Asset::AssetError,
+            'You need to specify an extension'
+          )
         end
 
         prepare_files
@@ -82,8 +88,12 @@ module Ramaze
         end
 
         # Add a .min suffix if this hasn't already been done so.
-        unless @options[:name] =~ /\.min/
+        if !@options[:name].nil? and @options[:name] !~ /\.min/
           @options[:name] += '.min'
+        end
+
+        if !@options[:name].nil?
+          @options[:name] += extension
         end
       end
 
@@ -110,7 +120,7 @@ module Ramaze
 
         cache_path = File.join(
           @options[:cache_path],
-          @options[:name] + extension
+          @options[:name]
         )
 
         # Minify the file in a sub process so that memory leaks (or just general
@@ -158,14 +168,17 @@ module Ramaze
               handle.close
             end
           end
+
+          # Don't call any at_exit() hooks, they're not needed in this process.
+          Kernel.exit!
         end
 
         Process.waitpid(pid)
 
         # Make sure the cache file is present
-        if !File.exist?(cache_path)
+        if !File.size?(cache_path)
           raise(
-            Ramaze::Asset::Error,
+            Ramaze::Asset::AssetError,
             "The cache file #{cache_path} could not be created"
           )
         end
@@ -182,7 +195,7 @@ module Ramaze
       #
       def build_html
         if @options[:minify] === true and @minified === true
-          files = [('/' + @options[:name]).squeeze('/') + extension]
+          files = [('/' + @options[:name]).squeeze('/')]
         else
           files = @files
         end

@@ -35,7 +35,7 @@ module Ramaze
       def html_tag(gestalt, path)
         gestalt.link(
           :rel  => 'stylesheet',
-          :scr  => path,
+          :href => path,
           :type => 'text/css'
         )
       end

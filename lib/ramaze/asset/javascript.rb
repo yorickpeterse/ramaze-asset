@@ -34,7 +34,7 @@ module Ramaze
       # @param  [String] path The relative path to the file for the tag.
       #
       def html_tag(gestalt, path)
-        gestalt.script(:scr => path, :type => 'text/javascript')
+        gestalt.script(:src => path, :type => 'text/javascript') {}
       end
     end # Javascript
   end # Asset
