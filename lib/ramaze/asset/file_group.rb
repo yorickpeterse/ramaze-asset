@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'digest/sha1'
 require 'ramaze/gestalt'
+require 'pathname'
 
 module Ramaze
   module Asset
@@ -290,10 +291,29 @@ module Ramaze
       # @return [String]
       #
       def build_html
+        prefix = '/'
+
         if @options[:minify] === true and @minified === true
+          # Get the relative path to the cache directory from one of the public
+          # directories.
+          @options[:paths].each do |path|
+            path = @options[:cache_path].gsub(path, '')
+
+            if path != @options[:cache_path] and !path.empty?
+              prefix += path
+              break
+            end
+          end
+
           files = [('/' + @options[:name]).squeeze('/')]
         else
           files = @files
+        end
+
+        # Let's make sure the URLs are actually pointing to the cached
+        # directory.
+        files.each_with_index do |file, index|
+          files[index] = "#{prefix}/#{file}".squeeze('/')
         end
 
         g = Ramaze::Gestalt.new

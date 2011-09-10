@@ -388,8 +388,8 @@ module Ramaze
       # @author Yorick Peterse
       # @since  0.1
       # @param  [Symbol] key A key in the @files hash to store the results in.
-      # @param  [Ramaze::Asset::Javascript|Ramaze::Asset::CSS] file_group The file
-      #  group to store.
+      # @param  [Ramaze::Asset::Javascript|Ramaze::Asset::CSS] file_group The
+      #  file group to store.
       # @param  [Symbol] controller The controller to store the file group in.
       # @param  [Array] methods An array of methods to store the file group in.
       #
