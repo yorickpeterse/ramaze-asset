@@ -1,5 +1,5 @@
 desc 'Runs all the tests'
-task :test do
+task :test => :clean do
   files = Dir.glob(File.expand_path('../../spec/ramaze_asset/*.rb', __FILE__))
 
   files.each do |file|

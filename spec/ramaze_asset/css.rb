@@ -34,7 +34,8 @@ describe('Ramaze::Asset::CSS') do
     File.size?(File.join(@cache, 'github.min.css')).should != false
 
     group.build_html.should \
-      === '<link rel="stylesheet" href="/github.min.css" type="text/css" />'
+      === '<link rel="stylesheet" href="/minified/github.min.css" ' \
+        'type="text/css" />'
   end
 
   it('Build multiple files') do
@@ -62,6 +63,7 @@ describe('Ramaze::Asset::CSS') do
     File.size?(File.join(@cache, 'github.min.css')).should != false
 
     group.build_html.should \
-      === '<link rel="stylesheet" href="/github.min.css" type="text/css" />'
+      === '<link rel="stylesheet" href="/minified/github.min.css" ' \
+        'type="text/css" />'
   end
 end

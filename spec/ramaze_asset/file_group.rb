@@ -62,7 +62,7 @@ describe('Ramaze::Asset::FileGroup') do
       :paths      => [@public]
     )
 
-    group.build_html.should =~ /<p>#{@file}\.js<\/p>/
+    group.build_html.should === "<p>#{@file}.js</p>"
 
     # Minify it this time.
     group = SpecFileGroup.new(
@@ -81,7 +81,7 @@ describe('Ramaze::Asset::FileGroup') do
     File.size?(File.join(@cache, 'spec.min.js')).should != false
     minified.include?(content).should                   === true
 
-    group.build_html.should =~ /<p>\/spec\.min\.js<\/p>/
+    group.build_html.should === '<p>/minified/spec.min.js</p>'
   end
 
   it('Build multiple files') do
@@ -91,10 +91,7 @@ describe('Ramaze::Asset::FileGroup') do
       :paths      => [@public]
     )
 
-    html = group.build_html
-
-    html.should =~ /<p>#{@file}\.js<\/p>/
-    html.should =~ /<p>#{@file_1}\.js<\/p>/
+    group.build_html.should === "<p>#{@file}.js</p><p>#{@file_1}.js</p>"
 
     # Minify it this time.
     group = SpecFileGroup.new(
@@ -116,8 +113,6 @@ describe('Ramaze::Asset::FileGroup') do
     minified.include?(content).should   === true
     minified.include?(content_1).should === true
 
-    html = group.build_html
-
-    html.should =~ /<p>\/spec\.min\.js<\/p>/
+    group.build_html.should === "<p>/minified/spec.min.js</p>"
   end
 end

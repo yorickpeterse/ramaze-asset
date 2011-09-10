@@ -34,7 +34,8 @@ describe('Ramaze::Asset::Javascript') do
     File.size?(File.join(@cache, 'mootools.min.js')).should != false
 
     group.build_html.should \
-      === '<script src="/mootools.min.js" type="text/javascript"></script>'
+      === '<script src="/minified/mootools.min.js" ' \
+        'type="text/javascript"></script>'
   end
 
   it('Build multiple files') do
@@ -62,6 +63,7 @@ describe('Ramaze::Asset::Javascript') do
     File.size?(File.join(@cache, 'mootools.min.js')).should != false
 
     group.build_html.should \
-      === '<script src="/mootools.min.js" type="text/javascript"></script>'
+      === '<script src="/minified/mootools.min.js" ' \
+        'type="text/javascript"></script>'
   end
 end
