@@ -25,7 +25,7 @@ module Ramaze
       end
 
       ##
-      # Builds a <script> tag for a single Javascript file.
+      # Builds a ``<script>`` tag for a single Javascript file.
       #
       # @author Yorick Peterse
       # @since  0.1
