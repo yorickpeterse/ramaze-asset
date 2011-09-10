@@ -37,6 +37,12 @@ AssetEnv.serve(
 )
 
 AssetEnv.serve(
+  :javascript,
+  ['js/mootools_more'],
+  :controller => MainController
+)
+
+AssetEnv.serve(
   :css,
   ['css/reset', 'css/github'],
   :controller => MainController
