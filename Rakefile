@@ -1,3 +1,5 @@
+require File.expand_path('../lib/ramaze/asset', __FILE__)
+
 module Ramaze
   module Asset
     Gemspec = Gem::Specification::load(

@@ -3,7 +3,7 @@
 namespace :build do
   desc 'Builds the documentation using YARD'
   task :doc do
-    gem_path = File.expand_path('../../../../', __FILE__)
+    gem_path = File.expand_path('../../', __FILE__)
     command  = "yard doc #{gem_path}/lib -m markdown -M rdiscount -o #{gem_path}/doc "
     command += "-r #{gem_path}/README.md --private --protected"
 
@@ -12,7 +12,7 @@ namespace :build do
 
   desc 'Builds a new Gem'
   task :gem do
-    gem_path     = File.expand_path('../../../../', __FILE__)
+    gem_path     = File.expand_path('../../', __FILE__)
     gemspec_path = File.join(
       gem_path,
       "#{Ramaze::Asset::Gemspec.name}-" \

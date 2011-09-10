@@ -11,6 +11,9 @@ module Ramaze
     # @since  0.1
     #
     class Environment
+      # Hash containing all the file groups for the current environment.
+      attr_reader :files
+
       # Hash containing all the file group types and their classes.
       Types = {}
 
@@ -202,6 +205,22 @@ module Ramaze
         return html
       end
 
+      ##
+      # Resets the environment by removing all the loaded files from it.
+      #
+      # @author Yorick Peterse
+      # @since  0.1
+      #
+      def reset!
+        @files.each do |type, controllers|
+          @files[type] = {:global => {:__all => []}}
+        end
+
+        @added_files.each do |type, files|
+          @added_files[type] = []
+        end
+      end
+
       private
 
       ##
@@ -225,13 +244,6 @@ module Ramaze
         end
 
         return if file_group.files.empty?
-
-        # Store the group
-        controller = controller.to_sym unless controller.is_a?(Symbol)
-
-        methods.each_with_index do |m, i|
-          methods[i] = m.to_sym unless m.is_a?(Symbol)
-        end
 
         @files[key][controller] ||= {:__all => []}
 
@@ -291,6 +303,19 @@ module Ramaze
         controller = options.delete(:controller) || :global
         methods    = options.delete(:methods)    || [:__all]
         options    = options.merge(@file_group_options)
+
+
+        if !controller.is_a?(Symbol)
+          controller = controller.to_s.to_sym
+        end
+
+        if !methods.respond_to?(:each_with_index)
+          methods = [methods]
+        end
+
+        methods.each_with_index do |method, index|
+          methods[index] = method.to_sym
+        end
 
         return [options, controller, methods]
       end

@@ -5,7 +5,7 @@ path = File.expand_path('../', __FILE__)
 Gem::Specification.new do |s|
   s.name        = 'ramaze-asset'
   s.version     = Ramaze::Asset::Version
-  s.date        = '08-09-2011'
+  s.date        = '2011-09-10'
   s.authors     = ['Yorick Peterse']
   s.email       = 'yorickpeterse@gmail.com'
   s.summary     = 'A simple yet powerful asset manager for Ramaze.'
@@ -16,8 +16,9 @@ Gem::Specification.new do |s|
 
   s.add_dependency('ramaze', ['>= 2011.07.25'])
 
-  s.add_development_dependency('rake'     , ['= 0.9.2'])
-  s.add_development_dependency('yard'     , ['= 0.7.2'])
-  s.add_development_dependency('bacon'    , ['= 1.1.0'])
-  s.add_development_dependency('rdiscount', ['= 1.6.8'])
+  s.add_development_dependency('rake'     , ['>= 0.9.2'])
+  s.add_development_dependency('yard'     , ['>= 0.7.2'])
+  s.add_development_dependency('bacon'    , ['>= 1.1.0'])
+  s.add_development_dependency('rdiscount', ['>= 1.6.8'])
+  s.add_development_dependency('rack-test', ['>= 0.6.1'])
 end
