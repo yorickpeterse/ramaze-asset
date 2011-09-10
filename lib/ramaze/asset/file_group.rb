@@ -83,6 +83,12 @@ module Ramaze
     #       end
     #     end
     #
+    # Note that it's important to remember that when dealing with files that
+    # have to be compiled, such as Less and Coffeescript files, setting :minify
+    # to false will not work. Without setting this option to true the minify()
+    # method will never be called and thus the raw Less/Coffeescript file would
+    # be served.
+    #
     # @author Yorick Peterse
     # @since  0.1
     #

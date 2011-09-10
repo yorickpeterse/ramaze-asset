@@ -364,9 +364,7 @@ module Ramaze
             options[:minify] = true
           end
         else
-          if !options.key?(:minify)
-            options[:minify] = false
-          end
+          options[:minify] = false
         end
 
         controller = options.delete(:controller) || :global
