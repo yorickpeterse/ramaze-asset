@@ -57,6 +57,32 @@ module Ramaze
     # see Ramaze::Asset::FileGroup#minify() and
     # Ramaze::Asset::FileGroup#html_tag().
     #
+    # ## Asset Groups
+    #
+    # Asset groups are a way of grouping assets together and load them all at
+    # the same time. This can be useful if you want to supply packages such as
+    # Mootools or jQuery without requiring the user to specify the paths to all
+    # the individual files.
+    #
+    # Adding an asset group can be done by calling
+    # Ramaze::Asset::Environment#register_asset_group:
+    #
+    #     env = Ramaze::Asset::Environment.new(...)
+    #
+    #     env.register_asset_group(:mootools) do |env|
+    #       env.serve(:javascript, ['js/mootools/core', 'js/mootools/more'])
+    #       env.serve(:css, ['css/foobar'])
+    #     end
+    #
+    # The group's block is yielded onto the environment it was added to, thus
+    # the "env" parameter is required.
+    #
+    # Loading this group can be done by calling
+    # Ramaze::Asset::AssetManager#load_asset_group and specifying the name of
+    # the group to load:
+    #
+    #     env.load_asset_group(:mootools)
+    #
     # @author Yorick Peterse
     # @since  0.1
     #
@@ -135,6 +161,7 @@ module Ramaze
 
         @files              = {}
         @added_files        = {}
+        @asset_groups       = {}
         @file_group_options = {
           :paths      => [],
           :cache_path => @options[:cache_path]
@@ -157,6 +184,70 @@ module Ramaze
             'No existing public directories were found'
           )
         end
+      end
+
+      ##
+      # Adds a new asset group to the current environment.
+      #
+      # @example
+      #  env = Ramaze::Asset::AssetManager.new(:cache_path => '...')
+      #
+      #  env.register_asset_group(:mootools) do |env|
+      #    env.serve(
+      #      :javascript,
+      #      ['js/mootools/core', 'js/mootools/more'],
+      #      :minify => true,
+      #      :name   => 'mootools'
+      #    )
+      #  end
+      #
+      # @author Yorick Peterse
+      # @since  0.1
+      # @param  [Symbol] name The name of the asset group.
+      # @param  [Block] block A block that will be yield on the current
+      #  instance. This block defines what assets should be loaded.
+      #
+      def register_asset_group(name, &block)
+        name = name.to_sym unless name.is_a?(Symbol)
+
+        if @asset_groups.key?(name)
+          raise(
+            Ramaze::Asset::AssetError,
+            "The asset group \"#{name}\" already exists"
+          )
+        end
+
+        @asset_groups[name] = block
+      end
+
+      ##
+      # Loads the given asset group.
+      #
+      # @example
+      #  env = Ramaze::Asset::AssetManager.new(:cache_path => '...')
+      #
+      #  env.register_asset_group(:mootools) do |env|
+      #    env.serve(...)
+      #  end
+      #
+      #  env.load_asset_group(:mootools)
+      #
+      # @author Yorick Peterse
+      # @since  0.1
+      # @param  [Symbol] name The name of the asset group to load.
+      # @yield  self
+      #
+      def load_asset_group(name)
+        name = name.to_sym unless name.is_a?(Symbol)
+
+        if !@asset_groups.key?(name)
+          raise(
+            Ramaze::Asset::AssetError,
+            "The asset group \"#{name}\" doesn't exist"
+          )
+        end
+
+        @asset_groups[name].call(self)
       end
 
       ##

@@ -128,4 +128,21 @@ describe('Ramaze::Asset::Environment') do
     body1.include?('/js/mootools_core.js').should === false
     body2.include?('/js/mootools_core.js').should === true
   end
+
+  it('Add an asset group and load it') do
+    SpecEnv.register_asset_group(:spec) do |env|
+      env.serve(:css, ['css/github', 'css/reset'])
+    end
+
+    SpecEnv.files[:css].nil?.should === true
+
+    should.not.raise?(Ramaze::Asset::AssetError) do
+      SpecEnv.load_asset_group(:spec)
+    end
+
+    files = SpecEnv.files[:css][:global][:__all][0].files
+
+    files.include?('/css/github.css').should === true
+    files.include?('/css/reset.css').should  === true
+  end
 end
