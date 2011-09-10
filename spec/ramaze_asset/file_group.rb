@@ -50,8 +50,9 @@ describe('Ramaze::Asset::FileGroup') do
       :minify     => true
     )
 
-    group.options[:name].should === name
-    group.extension.should      === '.js'
+    group.options[:name].should       === name
+    group.extension[:source].should   === '.js'
+    group.extension[:minified].should === '.min.js'
   end
 
   it('Build a single file') do

@@ -9,6 +9,80 @@ module Ramaze
     # such as Javascript files, together. The HTML for these files can be
     # generated as well as a minified version of all the files.
     #
+    # ## Creating File Groups
+    #
+    # Ramaze::Asset comes with two file groups that are capable of processing
+    # Javascript and CSS files. If you need to have a file group for
+    # Coffeescript, Less or other files is quite easy to add these yourself.
+    # First you must create a class that extends Ramaze::Asset::FileGroup:
+    #
+    #     class Less < Ramaze::Asset::FileGroup
+    #
+    #     end
+    #
+    # It's important that you define the correct file extensions for your file
+    # group. Without this Ramaze::Asset will not be able to find the files for
+    # you (unless they have an extension specified) and the minified file will
+    # end up not having an extension. Setting an extension can be done by
+    # calling the class method ``extension()``. This method has two parameters,
+    # the first one is the extension of the source file, the second the
+    # extension for the minified file. In case of Less this would result in the
+    # following:
+    #
+    #     class Less < Ramaze::Asset::FileGroup
+    #       extension '.less', '.css'
+    #     end
+    #
+    # The next step is to define your own minify() and html_tag() methods. If
+    # you don't define these methods they'll raise an error and most likely
+    # break things.
+    #
+    #     class Less < Ramaze::Asset::FileGroup
+    #       extension '.less', '.css'
+    #
+    #       def minify(input)
+    #
+    #       end
+    #
+    #       def html_tag(gestalt, path)
+    #
+    #       end
+    #     end
+    #
+    # The minify() method should return a string containing the minified data.
+    # The html_tag() method uses an instance of Ramaze::Gestalt to build a
+    # single tag for a given (relative) path.
+    #
+    # A full example of Less looks like the following:
+    #
+    #     require 'tempfile'
+    #
+    #     class Less < Ramaze::Asset::FileGroup
+    #       extension '.less', '.css'
+    #
+    #       # +input+ contains the raw Less data. The command line tool only
+    #       # accepts files so this data has to be written to a temp file.
+    #       def minify(input)
+    #         file = Tempfile.new('less')
+    #         file.write(input)
+    #         file.rewind
+    #
+    #         minified = `lessc #{file.path} -x`
+    #
+    #         file.close(true)
+    #
+    #         return minified
+    #       end
+    #
+    #       def html_tag(gestalt, path)
+    #         gestalt.link(
+    #           :rel  => 'stylesheet',
+    #           :href => path,
+    #           :type => 'text/css'
+    #         )
+    #       end
+    #     end
+    #
     # @author Yorick Peterse
     # @since  0.1
     #
@@ -21,15 +95,33 @@ module Ramaze
       attr_reader :options
 
       ##
-      # Sets the extension of the current class in the instance variable
-      # @extension.
+      # Sets the file extensions for the current class. These extensions should
+      # start with a dot.
       #
       # @author Yorick Peterse
       # @since  0.1
-      # @param  [#to_s] ext The extension such as ".css" or ".js".
+      # @param  [#to_s] source_ext The extension of the source file such as
+      #  ".css" or ".js".
+      # @param  [#to_s] minified_ext The extension to use for the minified file.
+      #  Useful when the resulting extension is different than the source
+      #  extension (such as with Less or Coffeescript).
       #
-      def self.extension(ext)
-        self.instance_variable_set(:@extension, ext)
+      def self.extension(source_ext, minified_ext = nil)
+        if minified_ext.nil?
+          minified_ext = '.min' + source_ext
+        end
+
+        if source_ext[0] != '.' or minified_ext[0] != '.'
+          raise(
+            Ramaze::Asset::AssetError,
+            'Extensions should start with a dot'
+          )
+        end
+
+        self.instance_variable_set(
+          :@extension,
+          {:source => source_ext, :minified => minified_ext}
+        )
       end
 
       ##
@@ -87,13 +179,8 @@ module Ramaze
           @options[:name] = Digest::SHA1.new.hexdigest(@options[:name])
         end
 
-        # Add a .min suffix if this hasn't already been done so.
-        if !@options[:name].nil? and @options[:name] !~ /\.min/
-          @options[:name] += '.min'
-        end
-
         if !@options[:name].nil?
-          @options[:name] += extension
+          @options[:name] += extension[:minified]
         end
       end
 
@@ -253,7 +340,7 @@ module Ramaze
       #
       def prepare_files
         @files.each_with_index do |file, index|
-          file += extension if File.extname(file) != extension
+          file += extension[:source] if File.extname(file) != extension[:source]
 
           if file[0] != '/'
             file = '/' + file

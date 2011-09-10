@@ -5,7 +5,57 @@ require __DIR__('javascript')
 module Ramaze
   module Asset
     ##
-    # An asset manager capable of minifying and serving your assets.
+    # The Environment class can be used to create isolated environments of which
+    # each serves it's own set of assets and has it's own cache path. Creating a
+    # new environment can be done by initializing the class:
+    #
+    #     env = Ramaze::Asset::Environment.new(:cache_path => '...')
+    #
+    # It's important to remember that the cache path will *not* be created if it
+    # doesn't exist.
+    #
+    # Once an environment has been created you can tell it to serve files by
+    # calling the serve() method:
+    #
+    #     env.serve(:javascript, ['js/mootools/core'], :minify => true)
+    #
+    # The first parameter is the type of file to serve. Out of the box
+    # Ramaze::Asset serves Javascript (:javascript) and CSS (:css) files. The
+    # second parameter is an array of files relative to one of Ramaze's public
+    # directories (with or without extension). The last parameter is a hash
+    # containing various options.
+    #
+    # Once you've added a set of files you'll need to minify them (if there are
+    # any files to minify) followed by generating the HTML tags. This is done in
+    # two separate steps for each type of file you want to build:
+    #
+    #     # Minify all Javascript files and generate the HTML
+    #     env.build(:javascript)
+    #     env.build_html(:javascript)
+    #
+    #     # Do the same for CSS files
+    #     env.build(:css)
+    #     env.build_html(:css)
+    #
+    # It's best to handle the minifying of files while booting up your
+    # application, this way HTTP requests won't be delayed the first time a set
+    # of files is minified. Note that files are only minified the first time OR
+    # when their content has changed.
+    #
+    # ## Registering Types
+    #
+    # Ramaze::Asset is built in such a way that it's relatively easy to register
+    # file types to serve. This can be done by calling
+    # Ramaze::Asset::Environment.register_type() as following:
+    #
+    #     Ramaze::Asset::Environment.register_type(:less, Ramaze::Asset::Less)
+    #
+    # The first parameter is the type of file and will be using in methods such
+    # as Ramaze::Asset::Environment#serve(), the second parameter is a class
+    # that extends Ramaze::Asset::FileGroup. This class should define two
+    # methods, minify() and html_tag(). For more information on these methods
+    # see Ramaze::Asset::FileGroup#minify() and
+    # Ramaze::Asset::FileGroup#html_tag().
     #
     # @author Yorick Peterse
     # @since  0.1
@@ -18,7 +68,24 @@ module Ramaze
       Types = {}
 
       ##
-      # Registers a new type of file to serve.
+      # Registers a new type of file to serve. See Ramaze::Asset::FileGroup for
+      # more information about the structure of the class used for the file
+      # type.
+      #
+      # @example
+      #  class Foobar < Ramaze::Asset::FileGroup
+      #    extension '.foobar'
+      #
+      #    def minify(input)
+      #      return input
+      #    end
+      #
+      #    def html_tag(gestalt, path)
+      #      gestalt.p(path)
+      #    end
+      #  end
+      #
+      #  Ramaze::Asset::Environment.register_type(:foobar, Foobar)
       #
       # @author Yorick Peterse
       # @since  0.1
@@ -297,7 +364,9 @@ module Ramaze
             options[:minify] = true
           end
         else
-          options[:minify] = false
+          if !options.key?(:minify)
+            options[:minify] = false
+          end
         end
 
         controller = options.delete(:controller) || :global
