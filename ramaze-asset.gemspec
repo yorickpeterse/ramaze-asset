@@ -5,11 +5,11 @@ path = File.expand_path('../', __FILE__)
 Gem::Specification.new do |s|
   s.name        = 'ramaze-asset'
   s.version     = Ramaze::Asset::Version
-  s.date        = '2011-09-10'
+  s.date        = '2011-09-11'
   s.authors     = ['Yorick Peterse']
   s.email       = 'yorickpeterse@gmail.com'
   s.summary     = 'A simple yet powerful asset manager for Ramaze.'
-  s.homepage    = 'https://github.com/yorickpeterse/ramaze_asset'
+  s.homepage    = 'https://github.com/yorickpeterse/ramaze-asset'
   s.description = s.summary
   s.files       = `cd #{path}; git ls-files`.split("\n").sort
   s.has_rdoc    = 'yard'
