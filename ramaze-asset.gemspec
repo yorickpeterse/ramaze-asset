@@ -5,7 +5,7 @@ path = File.expand_path('../', __FILE__)
 Gem::Specification.new do |s|
   s.name        = 'ramaze-asset'
   s.version     = Ramaze::Asset::Version
-  s.date        = '2011-09-11'
+  s.date        = '2011-09-14'
   s.authors     = ['Yorick Peterse']
   s.email       = 'yorickpeterse@gmail.com'
   s.summary     = 'A simple yet powerful asset manager for Ramaze.'
