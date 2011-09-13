@@ -221,7 +221,8 @@ module Ramaze
       end
 
       ##
-      # Loads the given asset group.
+      # Loads the given asset group. The first parameter is the name of the
+      # group to load, all additional parameters will be passed to the block.
       #
       # @example
       #  env = Ramaze::Asset::AssetManager.new(:cache_path => '...')
@@ -237,7 +238,7 @@ module Ramaze
       # @param  [Symbol] name The name of the asset group to load.
       # @yield  self
       #
-      def load_asset_group(name)
+      def load_asset_group(name, *args)
         name = name.to_sym unless name.is_a?(Symbol)
 
         if !@asset_groups.key?(name)
@@ -247,7 +248,7 @@ module Ramaze
           )
         end
 
-        @asset_groups[name].call(self)
+        @asset_groups[name].call(self, *args)
       end
 
       ##

@@ -130,14 +130,16 @@ describe('Ramaze::Asset::Environment') do
   end
 
   it('Add an asset group and load it') do
-    SpecEnv.register_asset_group(:spec) do |env|
+    SpecEnv.register_asset_group(:spec) do |env, number|
       env.serve(:css, ['css/github', 'css/reset'])
+
+      number.should === 10
     end
 
     SpecEnv.files[:css].nil?.should === true
 
     should.not.raise?(Ramaze::Asset::AssetError) do
-      SpecEnv.load_asset_group(:spec)
+      SpecEnv.load_asset_group(:spec, 10)
     end
 
     files = SpecEnv.files[:css][:global][:__all][0].files
