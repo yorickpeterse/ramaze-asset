@@ -290,7 +290,7 @@ module Ramaze
         end
 
         @files[type]       ||= {:global => {:__all => []}}
-        @added_files[type] ||= []
+        @added_files[type] ||= {}
 
         options, controller, methods = prepare_options(options)
         file_group                   = Types[type].new(files, options)
@@ -376,7 +376,7 @@ module Ramaze
         end
 
         @added_files.each do |type, files|
-          @added_files[type] = []
+          @added_files[type] = {}
         end
       end
 
@@ -397,8 +397,11 @@ module Ramaze
       def store_group(key, file_group, controller, methods)
         # Remove all files from the group that have already been loaded.
         file_group.files.each_with_index do |file, index|
-          if @added_files.key?(key) and @added_files[key].include?(file)
-            file_group.files.delete_at(index)
+          if @added_files.key?(key)
+            if @added_files[key].key?(controller) \
+            and @added_files[key][controller].include?(file)
+              file_group.files.delete_at(index)
+            end
           end
         end
 
@@ -412,7 +415,9 @@ module Ramaze
           @files[key][controller][m].push(file_group)
         end
 
-        @added_files[key] += file_group.files
+        @added_files[key]             ||= {}
+        @added_files[key][controller] ||= []
+        @added_files[key][controller]  += file_group.files
       end
 
       ##

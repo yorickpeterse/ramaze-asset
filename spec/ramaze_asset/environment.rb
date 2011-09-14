@@ -147,4 +147,52 @@ describe('Ramaze::Asset::Environment') do
     files.include?('/css/github.css').should === true
     files.include?('/css/reset.css').should  === true
   end
+
+  it('Load multiple files for the same controller') do
+    SpecEnv.serve(
+      :javascript,
+      ['js/mootools_core'],
+      :controller => SpecEnvironment
+    )
+
+    SpecEnv.serve(
+      :javascript,
+      ['js/mootools_more'],
+      :controller => SpecEnvironment
+    )
+
+    SpecEnv.serve(
+      :javascript,
+      ['js/mootools_core'],
+      :controller => SpecEnvironment2
+    )
+
+    SpecEnv.files[:javascript].keys.include?(:SpecEnvironment).should  === true
+    SpecEnv.files[:javascript].keys.include?(:SpecEnvironment2).should === true
+
+    SpecEnv.files[:javascript][:SpecEnvironment][:__all].length.should  === 2
+    SpecEnv.files[:javascript][:SpecEnvironment2][:__all].length.should === 1
+
+    body1 = get('/').body
+    body2 = get('/2').body
+
+    body1.should != body2
+
+    body1.include?('js/mootools_core').should === true
+    body1.include?('js/mootools_more').should === true
+    body2.include?('js/mootools_core').should === true
+    body2.include?('js/mootools_more').should === false
+  end
+
+  it('Files should only be loaded once for the same controller') do
+    3.times do
+      SpecEnv.serve(
+        :javascript,
+        ['js/mootools_core'],
+        :controller => SpecEnvironment
+      )
+    end
+
+    SpecEnv.files[:javascript][:SpecEnvironment][:__all].length.should === 1
+  end
 end
