@@ -284,7 +284,7 @@ module Ramaze
 
         if !Types.key?(type)
           raise(
-            Zen::Asset::AssetError,
+            Ramaze::Asset::AssetError,
             "The type \"#{type}\" doesn't exist"
           )
         end
