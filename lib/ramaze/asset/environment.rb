@@ -162,28 +162,6 @@ module Ramaze
         @files              = {}
         @added_files        = {}
         @asset_groups       = {}
-        @file_group_options = {
-          :paths      => [],
-          :cache_path => @options[:cache_path]
-        }
-
-        # Get all the public directories to serve files from.
-        Ramaze.options.roots.each do |root|
-          Ramaze.options.publics.each do |pub|
-            pub = File.join(root, pub)
-
-            if File.directory?(pub)
-              @file_group_options[:paths].push(pub)
-            end
-          end
-        end
-
-        if @file_group_options[:paths].empty?
-          raise(
-            Ramaze::Asset::AssetError,
-            'No existing public directories were found'
-          )
-        end
       end
 
       ##
@@ -464,10 +442,28 @@ module Ramaze
           options[:minify] = false
         end
 
-        controller = options.delete(:controller) || :global
-        methods    = options.delete(:methods)    || [:__all]
-        options    = options.merge(@file_group_options)
+        controller           = options[:controller] || :global
+        methods              = options[:methods]    || [:__all]
+        options[:cache_path] = @options[:cache_path]
+        options[:paths]      = []
 
+        # Get all the public directories to serve files from.
+        Ramaze.options.roots.each do |root|
+          Ramaze.options.publics.each do |pub|
+            pub = File.join(root, pub)
+
+            if File.directory?(pub)
+              options[:paths].push(pub)
+            end
+          end
+        end
+
+        if options[:paths].empty?
+          raise(
+            Ramaze::Asset::AssetError,
+            'No existing public directories were found'
+          )
+        end
 
         if !controller.is_a?(Symbol)
           controller = controller.to_s.to_sym

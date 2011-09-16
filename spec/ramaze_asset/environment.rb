@@ -45,17 +45,11 @@ describe('Ramaze::Asset::Environment') do
       env = Ramaze::Asset::Environment.new(
         :cache_path => __DIR__('../fixtures/public')
       )
+
+      env.serve(:javascript, ['js/mootools_core'])
     end
 
     Ramaze.options.publics = old_publics
-  end
-
-  it('Generate the possible paths') do
-    path = __DIR__('../fixtures/public')
-    env  = Ramaze::Asset::Environment.new(:cache_path => path)
-
-    env.instance_variable_get(:@file_group_options)[:paths].include?(path) \
-      .should === true
   end
 
   it('Register a new type') do
