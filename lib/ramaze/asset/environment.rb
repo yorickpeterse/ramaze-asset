@@ -256,6 +256,9 @@ module Ramaze
       #  controller set in :controller. When setting these methods the files
       #  will only be served when those methods are executed. This option is
       #  completely ignored if :controller is set to :global.
+      # @option options :force When set to true the files will be minified
+      #  regardless of the (global) :minify option. This is useful for files such
+      #  as Coffeescript or Less files.
       #
       def serve(type, files, options = {})
         type = type.to_sym
@@ -440,6 +443,10 @@ module Ramaze
           end
         else
           options[:minify] = false
+        end
+
+        if options.key?(:force) and options[:force] === true
+          options[:minify] = true
         end
 
         controller           = options[:controller] || :global

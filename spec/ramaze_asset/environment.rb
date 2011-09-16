@@ -78,6 +78,17 @@ describe('Ramaze::Asset::Environment') do
     env.files[:css][:global][:__all][0].options[:minify].should        === false
   end
 
+  it('Force minifying a file') do
+    env = Ramaze::Asset::Environment.new(
+      :cache_path => __DIR__('../fixtures/public/minified'),
+      :minify     => false
+    )
+
+    env.serve(:javascript, ['js/mootools_core'], :force => true)
+
+    env.files[:javascript][:global][:__all][0].options[:minify].should === true
+  end
+
   it('Serve a file globally') do
     SpecEnv.serve(:javascript, ['js/mootools_core'], :controller => :global)
 
